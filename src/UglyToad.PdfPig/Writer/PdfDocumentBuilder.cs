@@ -178,7 +178,7 @@ namespace UglyToad.PdfPig.Writer
         /// Adds a TrueType font to the builder so that pages in this document can use it.
         /// </summary>
         /// <param name="fontFileBytes">The bytes of a TrueType font.</param>
-        /// <returns>An identifier which can be passed to <see cref="PdfPageBuilder.AddText"/>.</returns>
+        /// <returns>An identifier which can be passed to <see cref="PdfPageBuilder.AddText(string, decimal, PdfPoint, PdfDocumentBuilder.AddedFont)" />.</returns>
         public AddedFont AddTrueTypeFont(IReadOnlyList<byte> fontFileBytes)
         {
             try
@@ -199,7 +199,7 @@ namespace UglyToad.PdfPig.Writer
         /// Adds one of the Standard 14 fonts which are included by default in PDF programs so that pages in this document can use it. These Standard 14 fonts are old and possibly obsolete.
         /// </summary>
         /// <param name="type">The type of the Standard 14 font to use.</param>
-        /// <returns>An identifier which can be passed to <see cref="PdfPageBuilder.AddText"/>.</returns>
+        /// <returns>An identifier which can be passed to <see cref="PdfPageBuilder.AddText(string, decimal, PdfPoint, PdfDocumentBuilder.AddedFont)"/>.</returns>
         public AddedFont AddStandard14Font(Standard14Font type)
         {
             if (ArchiveStandard != PdfAStandard.None)

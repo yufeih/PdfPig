@@ -432,6 +432,22 @@
         /// <returns>The letters from the input text with their corresponding size and position.</returns>
         public IReadOnlyList<Letter> MeasureText(string text, decimal fontSize, PdfPoint position, PdfDocumentBuilder.AddedFont font)
         {
+            return MeasureText(text, fontSize, TransformationMatrix.FromValues(1, 0, 0, 1, position.X, position.Y), font);
+        }
+
+        /// <summary>
+        /// Calculates the size and position of each letter in a given string in the provided font without changing the state of the page. 
+        /// </summary>
+        /// <param name="text">The text to measure each letter of.</param>
+        /// <param name="fontSize">The size of the font in user space units.</param>
+        /// <param name="transform">The transformation matrix of the baseline (lower-left corner) to start drawing the text from.</param>
+        /// <param name="font">
+        /// A font added to the document using <see cref="PdfDocumentBuilder.AddTrueTypeFont"/>
+        /// or <see cref="PdfDocumentBuilder.AddStandard14Font"/> methods.
+        /// </param> 
+        /// <returns>The letters from the input text with their corresponding size and position.</returns>
+        public IReadOnlyList<Letter> MeasureText(string text, decimal fontSize, TransformationMatrix transform, PdfDocumentBuilder.AddedFont font)
+        {
             if (font == null)
             {
                 throw new ArgumentNullException(nameof(font));
@@ -457,9 +473,7 @@
 
             var fm = fontProgram.GetFontMatrix();
 
-            var textMatrix = TransformationMatrix.FromValues(1, 0, 0, 1, position.X, position.Y);
-
-            var letters = DrawLetters(null, text, fontProgram, fm, fontSize, textMatrix);
+            var letters = DrawLetters(null, text, fontProgram, fm, fontSize, transform);
 
             return letters;
         }
@@ -476,6 +490,22 @@
         /// </param> 
         /// <returns>The letters from the input text with their corresponding size and position.</returns>
         public IReadOnlyList<Letter> AddText(string text, decimal fontSize, PdfPoint position, PdfDocumentBuilder.AddedFont font)
+        {
+            return AddText(text, fontSize, TransformationMatrix.FromValues(1, 0, 0, 1, position.X, position.Y), font);
+        }
+
+        /// <summary>
+        /// Draws the text in the provided font at the specified position and returns the letters which will be drawn. 
+        /// </summary>
+        /// <param name="text">The text to draw to the page.</param>
+        /// <param name="fontSize">The size of the font in user space units.</param>
+        /// <param name="transform">The transformation matrix of the baseline (lower-left corner) to start drawing the text from.</param>
+        /// <param name="font">
+        /// A font added to the document using <see cref="PdfDocumentBuilder.AddTrueTypeFont"/>
+        /// or <see cref="PdfDocumentBuilder.AddStandard14Font"/> methods.
+        /// </param> 
+        /// <returns>The letters from the input text with their corresponding size and position.</returns>
+        public IReadOnlyList<Letter> AddText(string text, decimal fontSize, TransformationMatrix transform, PdfDocumentBuilder.AddedFont font)
         {
             if (font == null)
             {
@@ -504,13 +534,11 @@
 
             var fm = fontProgram.GetFontMatrix();
 
-            var textMatrix = TransformationMatrix.FromValues(1, 0, 0, 1, position.X, position.Y);
-
-            var letters = DrawLetters(fontName, text, fontProgram, fm, fontSize, textMatrix);
+            var letters = DrawLetters(fontName, text, fontProgram, fm, fontSize, transform);
 
             currentStream.Add(BeginText.Value);
             currentStream.Add(new SetFontAndSize(fontName, fontSize));
-            currentStream.Add(new MoveToNextLineWithOffset((decimal)position.X, (decimal)position.Y));
+            currentStream.Add(new MoveToNextLineWithOffset((decimal)transform.E, (decimal)transform.F));
             var bytesPerShow = new List<byte>();
             foreach (var letter in text)
             {
